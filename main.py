@@ -53,6 +53,28 @@ def simulate_match(team_one, team_two):
 
     return team_one_goals, team_two_goals
 
+def simulate_knockout_match(team_one, team_two):
+    team_one_goals, team_two_goals = simulate_match(team_one, team_two)
+
+    if team_one_goals > team_two_goals:
+        return team_one, team_one_goals, team_two_goals
+
+    if team_two_goals > team_one_goals:
+        return team_two, team_one_goals, team_two_goals
+
+    team_one_rating = teams[team_one]
+    team_two_rating = teams[team_two]
+
+    team_one_chance = team_one_rating / (team_one_rating + team_two_rating)
+
+    winner = random.choices(
+        [team_one, team_two],
+        weights=[team_one_chance, 1 - team_one_chance],
+        k=1,
+    )[0]
+
+    return winner, team_one_goals, team_two_goals
+
 
 def update_standings(standings, team_one, team_two, team_one_goals, team_two_goals):
     standings[team_one]["played"] += 1
@@ -86,6 +108,12 @@ def update_standings(standings, team_one, team_two, team_one_goals, team_two_goa
         standings[team_one]["points"] += 1
         standings[team_two]["points"] += 1
 
+def get_advancing_team(advancing_teams, group_name, position):
+    for team_info in advancing_teams:
+        if team_info["group"] == group_name and team_info["position"] == position:
+            return team_info["team"]
+
+    return None
 
 def simulate_group(group):
     standings = create_standings(group)
@@ -143,27 +171,103 @@ def print_standings(standings):
     return sorted_standings
 
 
-advancing_teams = []
+def simulate_group_stage():
+    advancing_teams = []
 
-for group_name, group_teams in groups.items():
+    for group_name, group_teams in groups.items():
+        print("==============================")
+        print(group_name)
+        print("==============================")
+
+        standings = simulate_group(group_teams)
+        sorted_standings = print_standings(standings)
+
+        first_place_team = sorted_standings[0][0]
+        second_place_team = sorted_standings[1][0]
+
+        advancing_teams.append({
+            "group": group_name,
+            "position": 1,
+            "team": first_place_team,
+        })
+
+        advancing_teams.append({
+            "group": group_name,
+            "position": 2,
+            "team": second_place_team,
+        })
+
+        print()
+
     print("==============================")
-    print(group_name)
+    print("Teams Advancing")
     print("==============================")
 
-    standings = simulate_group(group_teams)
-    sorted_standings = print_standings(standings)
+    for team_info in advancing_teams:
+        print(f"{team_info['group']} #{team_info['position']}: {team_info['team']}")
 
-    first_place_team = sorted_standings[0][0]
-    second_place_team = sorted_standings[1][0]
+    return advancing_teams
 
-    advancing_teams.append(first_place_team)
-    advancing_teams.append(second_place_team)
+def simulate_knockout_stage(advancing_teams):
+    group_a_winner = get_advancing_team(advancing_teams, "Group A", 1)
+    group_a_runner_up = get_advancing_team(advancing_teams, "Group A", 2)
+
+    group_b_winner = get_advancing_team(advancing_teams, "Group B", 1)
+    group_b_runner_up = get_advancing_team(advancing_teams, "Group B", 2)
 
     print()
+    print("==============================")
+    print("Knockout Stage")
+    print("==============================")
 
-print("==============================")
-print("Teams Advancing")
-print("==============================")
+    print("\nSemifinals:")
 
-for team in advancing_teams:
-    print(team)
+    semifinal_one_winner, semifinal_one_team_one_goals, semifinal_one_team_two_goals = (
+        simulate_knockout_match(group_a_winner, group_b_runner_up)
+    )
+
+    print(
+        f"{group_a_winner} {semifinal_one_team_one_goals} - "
+        f"{semifinal_one_team_two_goals} {group_b_runner_up}"
+    )
+    print(f"Winner: {semifinal_one_winner}")
+
+    semifinal_two_winner, semifinal_two_team_one_goals, semifinal_two_team_two_goals = (
+        simulate_knockout_match(group_b_winner, group_a_runner_up)
+    )
+
+    print(
+        f"{group_b_winner} {semifinal_two_team_one_goals} - "
+        f"{semifinal_two_team_two_goals} {group_a_runner_up}"
+    )
+    print(f"Winner: {semifinal_two_winner}")
+
+    print("\nFinal:")
+
+    champion, final_team_one_goals, final_team_two_goals = simulate_knockout_match(
+        semifinal_one_winner,
+        semifinal_two_winner,
+    )
+
+    print(
+        f"{semifinal_one_winner} {final_team_one_goals} - "
+        f"{final_team_two_goals} {semifinal_two_winner}"
+    )
+
+    print()
+    print("==============================")
+    print(f"Champion: {champion}")
+    print("==============================")
+
+    return champion
+
+def simulate_tournament():
+    advancing_teams = simulate_group_stage()
+    champion = simulate_knockout_stage(advancing_teams)
+
+    return champion
+
+advancing_teams = []
+
+if __name__ == "__main__":
+    simulate_tournament()
