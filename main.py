@@ -140,6 +140,10 @@ def print_standings(standings):
             f"GD: {stats['goal_difference']}"
         )
 
+    return sorted_standings
+
+
+advancing_teams = []
 
 for group_name, group_teams in groups.items():
     print("==============================")
@@ -147,6 +151,19 @@ for group_name, group_teams in groups.items():
     print("==============================")
 
     standings = simulate_group(group_teams)
-    print_standings(standings)
+    sorted_standings = print_standings(standings)
+
+    first_place_team = sorted_standings[0][0]
+    second_place_team = sorted_standings[1][0]
+
+    advancing_teams.append(first_place_team)
+    advancing_teams.append(second_place_team)
 
     print()
+
+print("==============================")
+print("Teams Advancing")
+print("==============================")
+
+for team in advancing_teams:
+    print(team)
