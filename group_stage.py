@@ -53,10 +53,11 @@ def update_standings(standings, team_one, team_two, team_one_goals, team_two_goa
         standings[team_two]["points"] += 1
 
 
-def simulate_group(group):
+def simulate_group(group, show_details=True):
     standings = create_standings(group)
 
-    print("Group Matches:\n")
+    if show_details:
+        print("Group Matches:\n")
 
     for i in range(len(group)):
         for j in range(i + 1, len(group)):
@@ -65,7 +66,8 @@ def simulate_group(group):
 
             team_one_goals, team_two_goals = simulate_match(team_one, team_two)
 
-            print(f"{team_one} {team_one_goals} - {team_two_goals} {team_two}")
+            if show_details:
+                print(f"{team_one} {team_one_goals} - {team_two_goals} {team_two}")
 
             update_standings(
                 standings,
@@ -78,7 +80,7 @@ def simulate_group(group):
     return standings
 
 
-def print_standings(standings):
+def print_standings(standings, show_details=True):
     sorted_standings = sorted(
         standings.items(),
         key=lambda team: (
@@ -89,26 +91,27 @@ def print_standings(standings):
         reverse=True,
     )
 
-    print("\nGroup Standings:\n")
+    if show_details:
+        print("\nGroup Standings:\n")
 
-    for position, team_data in enumerate(sorted_standings, start=1):
-        team_name = team_data[0]
-        stats = team_data[1]
+        for position, team_data in enumerate(sorted_standings, start=1):
+            team_name = team_data[0]
+            stats = team_data[1]
 
-        print(
-            f"{position}. {team_name} | "
-            f"{stats['points']} pts | "
-            f"W: {stats['wins']} "
-            f"D: {stats['draws']} "
-            f"L: {stats['losses']} | "
-            f"GF: {stats['goals_for']} "
-            f"GA: {stats['goals_against']} "
-            f"GD: {stats['goal_difference']}"
-        )
+            print(
+                f"{position}. {team_name} | "
+                f"{stats['points']} pts | "
+                f"W: {stats['wins']} "
+                f"D: {stats['draws']} "
+                f"L: {stats['losses']} | "
+                f"GF: {stats['goals_for']} "
+                f"GA: {stats['goals_against']} "
+                f"GD: {stats['goal_difference']}"
+            )
 
     return sorted_standings
 
-def get_best_third_place_teams(third_place_teams):
+def get_best_third_place_teams(third_place_teams, show_details=True):
     sorted_third_place_teams = sorted(
         third_place_teams,
         key=lambda team_info: (
@@ -121,35 +124,37 @@ def get_best_third_place_teams(third_place_teams):
 
     best_third_place_teams = sorted_third_place_teams[:8]
 
-    print("==============================")
-    print("Best Third-Place Teams")
-    print("==============================")
+    if show_details:
+        print("==============================")
+        print("Best Third-Place Teams")
+        print("==============================")
 
-    for team_info in best_third_place_teams:
-        stats = team_info["stats"]
+        for team_info in best_third_place_teams:
+            stats = team_info["stats"]
 
-        print(
-            f"{team_info['group']} #3: {team_info['team']} | "
-            f"{stats['points']} pts | "
-            f"GD: {stats['goal_difference']} | "
-            f"GF: {stats['goals_for']}"
-        )
+            print(
+                f"{team_info['group']} #3: {team_info['team']} | "
+                f"{stats['points']} pts | "
+                f"GD: {stats['goal_difference']} | "
+                f"GF: {stats['goals_for']}"
+            )
 
-    print()
+        print()
 
     return best_third_place_teams
 
-def simulate_group_stage():
+def simulate_group_stage(show_details=True):
     advancing_teams = []
     third_place_teams = []
 
     for group_name, group_teams in groups.items():
-        print("==============================")
-        print(group_name)
-        print("==============================")
+        if show_details:
+            print("==============================")
+            print(group_name)
+            print("==============================")
 
-        standings = simulate_group(group_teams)
-        sorted_standings = print_standings(standings)
+        standings = simulate_group(group_teams, show_details)
+        sorted_standings = print_standings(standings, show_details)
 
         first_place_team = sorted_standings[0]
         second_place_team = sorted_standings[1]
@@ -176,17 +181,22 @@ def simulate_group_stage():
             "stats": third_place_team[1],
         })
 
-        print()
+        if show_details:
+            print()
 
-    best_third_place_teams = get_best_third_place_teams(third_place_teams)
+    best_third_place_teams = get_best_third_place_teams(
+        third_place_teams,
+        show_details,
+    )
 
     advancing_teams.extend(best_third_place_teams)
 
-    print("==============================")
-    print("Teams Advancing")
-    print("==============================")
+    if show_details:
+        print("==============================")
+        print("Teams Advancing")
+        print("==============================")
 
-    for team_info in advancing_teams:
-        print(f"{team_info['group']} #{team_info['position']}: {team_info['team']}")
+        for team_info in advancing_teams:
+            print(f"{team_info['group']} #{team_info['position']}: {team_info['team']}")
 
     return advancing_teams

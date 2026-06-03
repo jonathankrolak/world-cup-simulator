@@ -219,47 +219,62 @@ def build_round_of_32_matches(advancing_teams):
     return matches
 
 
-def simulate_bracket_match(match_name, team_one, team_two):
+def simulate_bracket_match(match_name, team_one, team_two, show_details=True):
     winner, team_one_goals, team_two_goals, penalty_info = simulate_knockout_match(
         team_one,
         team_two,
     )
 
-    print(f"{match_name}: {team_one} {team_one_goals} - {team_two_goals} {team_two}")
+    if show_details:
+        print(f"{match_name}: {team_one} {team_one_goals} - {team_two_goals} {team_two}")
 
-    if penalty_info is not None:
-        print(
-            f"{penalty_info['winner']} wins "
-            f"{penalty_info['team_one_penalties']} - "
-            f"{penalty_info['team_two_penalties']} on penalties"
-        )
+        if penalty_info is not None:
+            print(
+                f"{penalty_info['winner']} wins "
+                f"{penalty_info['team_one_penalties']} - "
+                f"{penalty_info['team_two_penalties']} on penalties"
+            )
 
-    print(f"Winner: {winner}")
-    print()
+        print(f"Winner: {winner}")
+        print()
 
     return winner
 
 
-def simulate_knockout_stage(advancing_teams):
+def simulate_knockout_stage(advancing_teams, show_details=True):
     winners = {}
 
-    print()
-    print("==============================")
-    print("Knockout Stage")
-    print("==============================")
+    stage_reached = {}
 
-    print()
-    print("Round of 32")
-    print("------------------------------")
+    for team_info in advancing_teams:
+        stage_reached[team_info["team"]] = "Round of 32"
+
+    if show_details:
+        print()
+        print("==============================")
+        print("Knockout Stage")
+        print("==============================")
+
+        print()
+        print("Round of 32")
+        print("------------------------------")
 
     round_of_32_matches = build_round_of_32_matches(advancing_teams)
 
     for match_name, team_one, team_two in round_of_32_matches:
-        winners[match_name] = simulate_bracket_match(match_name, team_one, team_two)
+        winners[match_name] = simulate_bracket_match(
+            match_name,
+            team_one,
+            team_two,
+            show_details,
+        )
+
+        stage_reached[winners[match_name]] = "Round of 16"
 
     next_rounds = [
         (
             "Round of 16",
+            "Quarterfinals",
             [
                 ("Match 89", "Match 73", "Match 75"),
                 ("Match 90", "Match 74", "Match 77"),
@@ -273,6 +288,7 @@ def simulate_knockout_stage(advancing_teams):
         ),
         (
             "Quarterfinals",
+            "Semifinals",
             [
                 ("Match 97", "Match 89", "Match 90"),
                 ("Match 98", "Match 93", "Match 94"),
@@ -282,6 +298,7 @@ def simulate_knockout_stage(advancing_teams):
         ),
         (
             "Semifinals",
+            "Final",
             [
                 ("Match 101", "Match 97", "Match 98"),
                 ("Match 102", "Match 99", "Match 100"),
@@ -289,27 +306,37 @@ def simulate_knockout_stage(advancing_teams):
         ),
         (
             "Final",
+            "Champion",
             [
                 ("Match 104", "Match 101", "Match 102"),
             ],
         ),
     ]
 
-    for round_name, matches in next_rounds:
-        print()
-        print(round_name)
-        print("------------------------------")
+    for round_name, next_stage_name, matches in next_rounds:
+        if show_details:
+            print()
+            print(round_name)
+            print("------------------------------")
 
         for match_name, previous_match_one, previous_match_two in matches:
             team_one = winners[previous_match_one]
             team_two = winners[previous_match_two]
 
-            winners[match_name] = simulate_bracket_match(match_name, team_one, team_two)
+            winners[match_name] = simulate_bracket_match(
+                match_name,
+                team_one,
+                team_two,
+                show_details,
+            )
+
+            stage_reached[winners[match_name]] = next_stage_name
 
     champion = winners["Match 104"]
 
-    print("==============================")
-    print(f"Champion: {champion}")
-    print("==============================")
+    if show_details:
+        print("==============================")
+        print(f"Champion: {champion}")
+        print("==============================")
 
-    return champion
+    return champion, stage_reached
