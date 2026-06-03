@@ -34,5 +34,19 @@ def load_groups(file_path):
     return groups
 
 
+def validate_groups_have_ratings(groups, teams):
+    missing_teams = []
+
+    for group_name, group_teams in groups.items():
+        for team in group_teams:
+            if team not in teams:
+                missing_teams.append(team)
+
+    if missing_teams:
+        raise ValueError(f"Missing ratings for these teams: {missing_teams}")
+
+
 teams = load_teams("data/teams.csv")
 groups = load_groups("data/groups.csv")
+
+validate_groups_have_ratings(groups, teams)
