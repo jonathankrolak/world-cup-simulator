@@ -1,26 +1,38 @@
-teams = {
-    "Argentina": 92,
-    "France": 91,
-    "Brazil": 90,
-    "England": 89,
-    "Netherlands": 88,
-    "Germany": 87,
-    "Spain": 87,
-    "Portugal": 86,
-    "Croatia": 84,
-    "Uruguay": 83,
-    "Colombia": 82,
-    "Japan": 80,
-    "Mexico": 79,
-    "USA": 78,
-    "Morocco": 78,
-    "South Korea": 77,
-}
+import csv
 
 
-groups = {
-    "Group A": ["Argentina", "USA", "Japan", "Mexico"],
-    "Group B": ["France", "Brazil", "Germany", "Portugal"],
-    "Group C": ["England", "Croatia", "Morocco", "South Korea"],
-    "Group D": ["Spain", "Netherlands", "Uruguay", "Colombia"],
-}
+def load_teams(file_path):
+    teams = {}
+
+    with open(file_path, mode="r", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+
+        for row in reader:
+            team_name = row["team"]
+            rating = float(row["rating"])
+
+            teams[team_name] = rating
+
+    return teams
+
+
+def load_groups(file_path):
+    groups = {}
+
+    with open(file_path, mode="r", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+
+        for row in reader:
+            group_name = row["group"]
+            team_name = row["team"]
+
+            if group_name not in groups:
+                groups[group_name] = []
+
+            groups[group_name].append(team_name)
+
+    return groups
+
+
+teams = load_teams("data/teams.csv")
+groups = load_groups("data/groups.csv")

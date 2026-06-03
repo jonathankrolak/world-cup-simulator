@@ -6,13 +6,22 @@ def simulate_match(team_one, team_two):
     team_one_rating = teams[team_one]
     team_two_rating = teams[team_two]
 
-    team_one_goals = random.randint(0, 3)
-    team_two_goals = random.randint(0, 3)
+    rating_difference = team_one_rating - team_two_rating
 
-    if team_one_rating > team_two_rating:
-        team_one_goals += random.choice([0, 0, 1])
-    elif team_two_rating > team_one_rating:
-        team_two_goals += random.choice([0, 0, 1])
+    team_one_base_goals = random.randint(0, 2)
+    team_two_base_goals = random.randint(0, 2)
+
+    team_one_bonus_chance = max(0, rating_difference / 400)
+    team_two_bonus_chance = max(0, -rating_difference / 400)
+
+    team_one_goals = team_one_base_goals
+    team_two_goals = team_two_base_goals
+
+    if random.random() < team_one_bonus_chance:
+        team_one_goals += 1
+
+    if random.random() < team_two_bonus_chance:
+        team_two_goals += 1
 
     return team_one_goals, team_two_goals
 
@@ -23,8 +32,8 @@ def simulate_penalty_shootout(team_one, team_two):
     team_one_score = 0
     team_two_score = 0
 
-    team_one_make_chance = 0.72 + ((team_one_rating - team_two_rating) / 1000)
-    team_two_make_chance = 0.72 + ((team_two_rating - team_one_rating) / 1000)
+    team_one_make_chance = 0.72 + ((team_one_rating - team_two_rating) / 5000)
+    team_two_make_chance = 0.72 + ((team_two_rating - team_one_rating) / 5000)
 
     for shot in range(5):
         if random.random() < team_one_make_chance:
