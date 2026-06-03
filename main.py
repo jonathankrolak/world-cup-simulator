@@ -15,7 +15,10 @@ teams = {
 }
 
 
-group_a = ["Argentina", "USA", "Japan", "Mexico"]
+groups = {
+    "Group A": ["Argentina", "USA", "Japan", "Mexico"],
+    "Group B": ["France", "Brazil", "Germany", "Portugal"],
+}
 
 
 def create_standings(group):
@@ -138,5 +141,12 @@ def print_standings(standings):
         )
 
 
-standings = simulate_group(group_a)
-print_standings(standings)
+for group_name, group_teams in groups.items():
+    print("==============================")
+    print(group_name)
+    print("==============================")
+
+    standings = simulate_group(group_teams)
+    print_standings(standings)
+
+    print()
