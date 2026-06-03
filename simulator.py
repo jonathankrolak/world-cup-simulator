@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from data import teams
 from tournament import simulate_tournament
 
@@ -66,16 +64,38 @@ def run_simulations(number_of_simulations):
 
         team_stats[champion]["champion"] += 1
 
-    print_simulation_results(team_stats, number_of_simulations)
+    results = build_results_table(team_stats, number_of_simulations)
+
+    return results
 
 
-def print_simulation_results(team_stats, number_of_simulations):
-    sorted_team_stats = sorted(
-        team_stats.items(),
-        key=lambda team: team[1]["champion"],
+def build_results_table(team_stats, number_of_simulations):
+    results = []
+
+    for team, stats in team_stats.items():
+        result = {
+            "team": team,
+            "advance_percentage": stats["group_stage_advance"] / number_of_simulations * 100,
+            "round_of_16_percentage": stats["round_of_16"] / number_of_simulations * 100,
+            "quarterfinal_percentage": stats["quarterfinals"] / number_of_simulations * 100,
+            "semifinal_percentage": stats["semifinals"] / number_of_simulations * 100,
+            "final_percentage": stats["final"] / number_of_simulations * 100,
+            "champion_percentage": stats["champion"] / number_of_simulations * 100,
+            "championships_won": stats["champion"],
+        }
+
+        results.append(result)
+
+    results = sorted(
+        results,
+        key=lambda team: team["champion_percentage"],
         reverse=True,
     )
 
+    return results
+
+
+def print_simulation_results(results, number_of_simulations):
     print("==============================")
     print(f"World Cup Odds After {number_of_simulations} Simulations")
     print("==============================")
@@ -94,24 +114,19 @@ def print_simulation_results(team_stats, number_of_simulations):
     print(header)
     print("-" * len(header))
 
-    for team, stats in sorted_team_stats:
-        advance_percentage = stats["group_stage_advance"] / number_of_simulations * 100
-        round_of_16_percentage = stats["round_of_16"] / number_of_simulations * 100
-        quarterfinal_percentage = stats["quarterfinals"] / number_of_simulations * 100
-        semifinal_percentage = stats["semifinals"] / number_of_simulations * 100
-        final_percentage = stats["final"] / number_of_simulations * 100
-        champion_percentage = stats["champion"] / number_of_simulations * 100
-
+    for result in results:
         print(
-            f"{team:<25}"
-            f"{advance_percentage:>9.2f}%"
-            f"{round_of_16_percentage:>9.2f}%"
-            f"{quarterfinal_percentage:>9.2f}%"
-            f"{semifinal_percentage:>9.2f}%"
-            f"{final_percentage:>9.2f}%"
-            f"{champion_percentage:>9.2f}%"
+            f"{result['team']:<25}"
+            f"{result['advance_percentage']:>9.2f}%"
+            f"{result['round_of_16_percentage']:>9.2f}%"
+            f"{result['quarterfinal_percentage']:>9.2f}%"
+            f"{result['semifinal_percentage']:>9.2f}%"
+            f"{result['final_percentage']:>9.2f}%"
+            f"{result['champion_percentage']:>9.2f}%"
         )
 
 
 if __name__ == "__main__":
-    run_simulations(10000)
+    number_of_simulations = 10000
+    results = run_simulations(number_of_simulations)
+    print_simulation_results(results, number_of_simulations)
