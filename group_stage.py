@@ -108,9 +108,40 @@ def print_standings(standings):
 
     return sorted_standings
 
+def get_best_third_place_teams(third_place_teams):
+    sorted_third_place_teams = sorted(
+        third_place_teams,
+        key=lambda team_info: (
+            team_info["stats"]["points"],
+            team_info["stats"]["goal_difference"],
+            team_info["stats"]["goals_for"],
+        ),
+        reverse=True,
+    )
+
+    best_third_place_teams = sorted_third_place_teams[:8]
+
+    print("==============================")
+    print("Best Third-Place Teams")
+    print("==============================")
+
+    for team_info in best_third_place_teams:
+        stats = team_info["stats"]
+
+        print(
+            f"{team_info['group']} #3: {team_info['team']} | "
+            f"{stats['points']} pts | "
+            f"GD: {stats['goal_difference']} | "
+            f"GF: {stats['goals_for']}"
+        )
+
+    print()
+
+    return best_third_place_teams
 
 def simulate_group_stage():
     advancing_teams = []
+    third_place_teams = []
 
     for group_name, group_teams in groups.items():
         print("==============================")
@@ -120,22 +151,36 @@ def simulate_group_stage():
         standings = simulate_group(group_teams)
         sorted_standings = print_standings(standings)
 
-        first_place_team = sorted_standings[0][0]
-        second_place_team = sorted_standings[1][0]
+        first_place_team = sorted_standings[0]
+        second_place_team = sorted_standings[1]
+        third_place_team = sorted_standings[2]
 
         advancing_teams.append({
             "group": group_name,
             "position": 1,
-            "team": first_place_team,
+            "team": first_place_team[0],
+            "stats": first_place_team[1],
         })
 
         advancing_teams.append({
             "group": group_name,
             "position": 2,
-            "team": second_place_team,
+            "team": second_place_team[0],
+            "stats": second_place_team[1],
+        })
+
+        third_place_teams.append({
+            "group": group_name,
+            "position": 3,
+            "team": third_place_team[0],
+            "stats": third_place_team[1],
         })
 
         print()
+
+    best_third_place_teams = get_best_third_place_teams(third_place_teams)
+
+    advancing_teams.extend(best_third_place_teams)
 
     print("==============================")
     print("Teams Advancing")
