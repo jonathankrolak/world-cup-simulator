@@ -40,12 +40,20 @@ def simulate_knockout_stage(advancing_teams):
             team_one = knockout_teams[i]
             team_two = knockout_teams[len(knockout_teams) - 1 - i]
 
-            winner, team_one_goals, team_two_goals = simulate_knockout_match(
+            winner, team_one_goals, team_two_goals, penalty_info = simulate_knockout_match(
                 team_one,
                 team_two,
             )
 
             print(f"{team_one} {team_one_goals} - {team_two_goals} {team_two}")
+
+            if penalty_info is not None:
+                print(
+                    f"{penalty_info['winner']} wins "
+                    f"{penalty_info['team_one_penalties']} - "
+                    f"{penalty_info['team_two_penalties']} on penalties"
+                )
+
             print(f"Winner: {winner}")
 
             round_winners.append(winner)
